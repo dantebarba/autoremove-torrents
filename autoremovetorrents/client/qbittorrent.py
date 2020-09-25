@@ -262,8 +262,10 @@ class qBittorrent(object):
             status = TorrentStatus.Uploading
         elif state == 'checkingUP' or state == 'checkingDL':
             status = TorrentStatus.Checking
-        elif state == 'pausedUP' or state == 'pausedDL':
+        elif state == 'pausedDL':
             status = TorrentStatus.Paused
+        elif state == 'pausedUP':
+            status = TorrentStatus.Complete
         elif state == 'error':
             status = TorrentStatus.Error
         else:
