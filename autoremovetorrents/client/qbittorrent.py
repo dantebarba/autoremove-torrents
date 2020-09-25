@@ -222,6 +222,7 @@ class qBittorrent(object):
                 torrent_obj.downloaded = properties['total_downloaded']
                 torrent_obj.create_time = properties['addition_date']
                 torrent_obj.seeding_time = properties['seeding_time']
+                torrent_obj.downloading_time = properties['time_elapsed']
                 torrent_obj.upload_speed = properties['up_speed']
                 torrent_obj.download_speed = properties['dl_speed']
                 torrent_obj.seeder = properties['seeds_total']
@@ -234,8 +235,6 @@ class qBittorrent(object):
                 # We need to check the existence
                 if 'last_activity' in torrent:
                     torrent_obj.last_activity = torrent['last_activity']
-                if 'downloading_time' in properties:
-                    torrent_obj.downloading_time = properties['downloading_time']
                 torrent_obj.progress = torrent['progress']
 
                 return torrent_obj
