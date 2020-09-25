@@ -96,6 +96,10 @@ class ConditionParser(object):
                 obj = self._condition_map[t[1]](t[3], Comparer.GT)
                 obj.apply(self._client_status, self._torrent_list)
                 result = obj.remove
+            elif t[2] == '=': # Equals
+                obj = self._condition_map[t[1]](t[3], Comparer.EQ)
+                obj.apply(self._client_status, self._torrent_list)
+                result = obj.remove
         else:
             raise NoSuchCondition('The condition \'%s\' is not supported.' % t[1])
         t[0] = result
