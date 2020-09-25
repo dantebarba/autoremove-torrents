@@ -8,9 +8,9 @@ WORKDIR /app
 ADD . .
 
 RUN apt-get update \
-&& apt-get install git gcc cron -y -q \
+&& apt-get install gcc cron -y -q \
 && python3 setup.py install \
-&& apt-get purge gcc git -y \
+&& apt-get purge gcc -y \
 && apt-get clean
 
 ADD cron.sh /usr/bin/cron.sh
