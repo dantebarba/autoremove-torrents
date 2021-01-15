@@ -213,6 +213,8 @@ class qBittorrent(object):
                     torrent_obj.category = [torrent['category']] if len(torrent['category']) > 0 else []
                 elif 'label' in torrent:
                     torrent_obj.category = [torrent['label']] if len(torrent['label']) > 0 else []
+                if 'tags' in torrent:
+                    torrent_obj.tags = [torrent['tags']] if len(torrent['tags']) > 0 else []
                 torrent_obj.tracker = [tracker['url'] for tracker in trackers]
                 torrent_obj.status = qBittorrent._judge_status(torrent['state'])
                 torrent_obj.stalled = torrent['state'] == 'stalledUP' or torrent['state'] == 'stalledDL'
