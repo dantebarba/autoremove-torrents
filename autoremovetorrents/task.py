@@ -36,6 +36,7 @@ class Task(object):
         self._password = conf['password'] if 'password' in conf else ''
         self._enabled_remove = remove_torrents
         self._delete_data = conf['delete_data'] if 'delete_data' in conf else False
+        self._requeue = conf['requeue'] if 'requeue' in conf else False
         self._strategies = conf['strategies'] if 'strategies' in conf else []
 
         # Torrents
@@ -118,8 +119,12 @@ class Task(object):
         delete_list = {}
         for torrent in self._remove:
             delete_list[torrent.hash] = torrent.name
+        
+        if self._requeue:
+            success, failed = self._client.remove_torrents_and_requeue([hash_ for hash_ in delete_list], self._delete_data)
         # Run deletion
-        success, failed = self._client.remove_torrents([hash_ for hash_ in delete_list], self._delete_data)
+        if not self._requeue:
+            success, failed = self._client.remove_torrents([hash_ for hash_ in delete_list], self._delete_data)
         # Output logs
         for hash_ in success:
             self._logger.info(

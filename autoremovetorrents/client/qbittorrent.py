@@ -117,6 +117,9 @@ class qBittorrent(object):
         def delete_torrents_and_data(self, torrent_hash_list):
             return self._session.get(self._host+'/api/v2/torrents/delete', params={'hashes':'|'.join(torrent_hash_list), 'deleteFiles': True})
 
+        def queue_torrents(self, torrent_hash_list):
+            return self._session.post(self._host+'/api/v2/torrents/add', {"urls": torrent_hash_list, "paused": "false", "root_folder": "true", "autoTTM": "true"})
+
     def __init__(self, host):
         # Logger
         self._logger = logger.Logger.register(__name__)
@@ -287,3 +290,20 @@ class qBittorrent(object):
         # Some of them may fail but we can't judge them,
         # So we consider all of them as successful.
         return (torrent_hash_list, [])
+
+
+    def requeue(self, torrent_hash_list):
+        ''' requeues deleted torrents to retry download '''
+        request = self._request_handler.requeue_torrents(torrent_hash_list)
+        if request.status_code != 200:
+            return ([], [{
+                'hash': torrent,
+                'reason': 'The server responses HTTP %d.' % request.status_code,
+            } for torrent in torrent_hash_list])
+        
+        return (torrent_hash_list, [])
+
+    def remove_torrents_and_requeue(self, torrent_hash_list, remove_data):
+        ''' deletes torrent and requeues it to retry download '''
+        self.remove_torrents(torrent_hash_list, remove_data)
+        return self.requeue(torrent_hash_list)
