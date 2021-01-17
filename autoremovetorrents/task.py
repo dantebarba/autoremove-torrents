@@ -120,11 +120,9 @@ class Task(object):
         for torrent in self._remove:
             delete_list[torrent.hash] = torrent.name
         
-        if self._requeue:
-            success, failed = self._client.remove_torrents_and_requeue([hash_ for hash_ in delete_list], self._delete_data)
         # Run deletion
-        if not self._requeue:
-            success, failed = self._client.remove_torrents([hash_ for hash_ in delete_list], self._delete_data)
+        success, failed = self._client.remove_torrents([hash_ for hash_ in delete_list], self._delete_data)
+        
         # Output logs
         for hash_ in success:
             self._logger.info(
@@ -132,11 +130,28 @@ class Task(object):
                 else 'The torrent %s has been removed.',
                 delete_list[hash_]
             )
+            # Run requeue on successfully deleted torrents
+            self._requeue_torrents(success, delete_list)
         for torrent in failed:
             self._logger.error('The torrent %s and its data cannot be removed. Reason: %s' if self._delete_data \
                 else 'The torrent %s cannot be removed. Reason: %s',
                 delete_list[torrent['hash']], torrent['reason']
             )
+
+    def _requeue_torrents(self, torrent_hash_list, delete_list):
+        if self._requeue:
+            success, failed = self._client.requeue(torrent_hash_list, self._delete_data)
+            for hash_ in success:
+                self._logger.info(
+                    'The torrent %s has been removed and requeued' if self._delete_data \
+                    else 'The torrent %s has been requeued.',
+                    delete_list[hash_]
+                )
+            for torrent in failed:
+                self._logger.error('The torrent %s and its data cannot be requeued. Reason: %s' if self._delete_data \
+                    else 'The torrent %s cannot be requeued. Reason: %s',
+                    delete_list[torrent['hash']], torrent['reason']
+                )
 
     # Execute
     def execute(self):

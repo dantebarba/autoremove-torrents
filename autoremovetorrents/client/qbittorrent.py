@@ -294,7 +294,7 @@ class qBittorrent(object):
 
     def requeue(self, torrent_hash_list):
         ''' requeues deleted torrents to retry download '''
-        request = self._request_handler.requeue_torrents(torrent_hash_list)
+        request = self._request_handler.queue_torrents(torrent_hash_list)
         if request.status_code != 200:
             return ([], [{
                 'hash': torrent,
@@ -302,8 +302,3 @@ class qBittorrent(object):
             } for torrent in torrent_hash_list])
         
         return (torrent_hash_list, [])
-
-    def remove_torrents_and_requeue(self, torrent_hash_list, remove_data):
-        ''' deletes torrent and requeues it to retry download '''
-        self.remove_torrents(torrent_hash_list, remove_data)
-        return self.requeue(torrent_hash_list)
