@@ -140,7 +140,7 @@ class Task(object):
 
     def _requeue_torrents(self, torrent_hash_list, delete_list):
         if self._requeue:
-            success, failed = self._client.requeue(torrent_hash_list)
+            success, failed = self._client.requeue(torrent_hash_list, delete_list)
             for hash_ in success:
                 self._logger.info(
                     'The torrent %s has been removed and requeued' if self._delete_data \
