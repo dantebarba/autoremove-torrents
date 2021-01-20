@@ -236,6 +236,7 @@ class qBittorrent(object):
                 torrent_obj.connected_leecher = properties['peers']
                 torrent_obj.average_upload_speed = properties['up_speed_avg']
                 torrent_obj.average_download_speed = properties['dl_speed_avg']
+                torrent_obj.magnet_uri = torrent['magnet_uri']
                 # For qBittorrent 3.x, the last activity field doesn't exist.
                 # We need to check the existence
                 if 'last_activity' in torrent:
@@ -292,13 +293,13 @@ class qBittorrent(object):
         return (torrent_hash_list, [])
 
 
-    def requeue(self, torrent_hash_list):
+    def requeue(self, torrent_hash_list={}):
         ''' requeues deleted torrents to retry download '''
-        request = self._request_handler.queue_torrents(torrent_hash_list)
+        request = self._request_handler.queue_torrents([torrent_hash_list[hash_]["magnet_uri"] for hash_ in torrent_hash_list.keys()])
         if request.status_code != 200:
             return ([], [{
-                'hash': torrent,
+                'hash': _hash,
                 'reason': 'The server responses HTTP %d.' % request.status_code,
-            } for torrent in torrent_hash_list])
+            } for _hash in torrent_hash_list.keys()])
         
-        return (torrent_hash_list, [])
+        return (torrent_hash_list.keys(), [])

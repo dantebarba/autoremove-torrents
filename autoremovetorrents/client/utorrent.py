@@ -114,6 +114,7 @@ class uTorrent(object):
                 # Create torrent object
                 torrent_obj = Torrent()
                 torrent_obj.hash = torrent[0]
+                torrent_obj.magnet_uri = ''
                 torrent_obj.name = torrent[2]
                 # The category list will be empty if a torrent was not specified categories
                 torrent_obj.category = [torrent[11]] if len(torrent[11]) > 0 else []
@@ -177,3 +178,9 @@ class uTorrent(object):
                 'reason': 'The server responses HTTP %d.' % request.status_code,
             } for torrent in torrent_hash_list])
         return (torrent_hash_list, [])
+
+    def requeue(self, torrent_hash_list={}):
+        ''' requeues deleted torrents to retry download '''
+        pass
+        
+        return (torrent_hash_list.keys(), [])
