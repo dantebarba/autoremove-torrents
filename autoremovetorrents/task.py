@@ -118,39 +118,40 @@ class Task(object):
         # Bulid a dict to store torrent hashes and names which to be deleted
         delete_list = {}
         for torrent in self._remove:
-            delete_list[torrent.hash] = torrent.name
+            delete_list[torrent.hash] = { "name" : torrent.name, "magnet_uri" : torrent.magnet_uri }
         
         # Run deletion
-        success, failed = self._client.remove_torrents([hash_ for hash_ in delete_list], self._delete_data)
+        success, failed = self._client.remove_torrents(delete_list.keys(), self._delete_data)
         
         # Output logs
         for hash_ in success:
             self._logger.info(
                 'The torrent %s and its data have been removed.' if self._delete_data \
                 else 'The torrent %s has been removed.',
-                delete_list[hash_]
+                delete_list[hash_]["name"]
             )
             # Run requeue on successfully deleted torrents
-            self._requeue_torrents(success, delete_list)
+            # Generate a new dict based on success torrents
+            self._requeue_torrents({k: delete_list[k] for k in success if k in delete_list[k]})
         for torrent in failed:
             self._logger.error('The torrent %s and its data cannot be removed. Reason: %s' if self._delete_data \
                 else 'The torrent %s cannot be removed. Reason: %s',
-                delete_list[torrent['hash']], torrent['reason']
+                delete_list[torrent['hash']]["name"], torrent['reason']
             )
 
-    def _requeue_torrents(self, torrent_hash_list, delete_list):
+    def _requeue_torrents(self, torrent_hash_list):
         if self._requeue:
-            success, failed = self._client.requeue(torrent_hash_list, delete_list)
+            success, failed = self._client.requeue(torrent_hash_list)
             for hash_ in success:
                 self._logger.info(
                     'The torrent %s has been removed and requeued' if self._delete_data \
                     else 'The torrent %s has been requeued.',
-                    delete_list[hash_]
+                    torrent_hash_list[hash_]["name"]
                 )
             for torrent in failed:
                 self._logger.error('The torrent %s and its data cannot be requeued. Reason: %s' if self._delete_data \
                     else 'The torrent %s cannot be requeued. Reason: %s',
-                    delete_list[torrent['hash']], torrent['reason']
+                    torrent_hash_list[torrent['hash']]["name"], torrent['reason']
                 )
 
     # Execute

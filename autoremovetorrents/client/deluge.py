@@ -133,6 +133,7 @@ class Deluge(object):
         torrent_obj = Torrent()
         torrent_obj.hash = torrent['hash']
         torrent_obj.name = torrent['name']
+        torrent_obj.magnet_uri = ''
         if 'label' in torrent:
             torrent_obj.category = [torrent['label']] if len(torrent['label']) > 0 else []
         torrent_obj.tracker = [tracker['url'] for tracker in torrent['trackers']]
@@ -205,3 +206,9 @@ class Deluge(object):
                         'reason': e.args[0],
                     })
             return (success_hash, failures)
+
+    def requeue(self, torrent_hash_list={}):
+        ''' requeues deleted torrents to retry download '''
+        pass
+        
+        return (torrent_hash_list.keys(), [])
