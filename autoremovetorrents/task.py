@@ -132,7 +132,7 @@ class Task(object):
             )
             # Run requeue on successfully deleted torrents
             # Generate a new dict based on success torrents
-            self._requeue_torrents({k: delete_list[k] for k in success if k in delete_list[k]})
+            self._requeue_torrents({k: delete_list[k] for k in success if k in delete_list})
         for torrent in failed:
             self._logger.error('The torrent %s and its data cannot be removed. Reason: %s' if self._delete_data \
                 else 'The torrent %s cannot be removed. Reason: %s',
@@ -141,6 +141,7 @@ class Task(object):
 
     def _requeue_torrents(self, torrent_hash_list):
         if self._requeue:
+            self._logger.info('The following torrents will be requeued: %s', torrent_hash_list)
             success, failed = self._client.requeue(torrent_hash_list)
             for hash_ in success:
                 self._logger.info(
