@@ -120,6 +120,9 @@ class qBittorrent(object):
         def queue_torrents(self, torrent_hash_list):
             return self._session.post(self._host+'/api/v2/torrents/add', {"urls": torrent_hash_list, "paused": "false", "root_folder": "true", "autoTTM": "true"})
 
+        def recheck_torrents(self, torrent_hash_list):
+            return self._session.post(self._host+'/api/v2/torrents/recheck', {'hashes':'|'.join(torrent_hash_list)})
+
     def __init__(self, host):
         # Logger
         self._logger = logger.Logger.register(__name__)
@@ -296,6 +299,7 @@ class qBittorrent(object):
     def requeue(self, torrent_hash_list={}):
         ''' requeues deleted torrents to retry download '''
         request = self._request_handler.queue_torrents([torrent_hash_list[hash_]["magnet_uri"] for hash_ in torrent_hash_list.keys()])
+        self._request_handler.recheck_torrents(torrent_hash_list.keys())
         if request.status_code != 200:
             return ([], [{
                 'hash': _hash,
